@@ -13,21 +13,51 @@ class GenderDropdown extends StatelessWidget {
       onChanged: (String? newValue) {
         genderController.text = newValue!;
       },
-      decoration: const InputDecoration(labelText: 'Gender'),
+      decoration: InputDecoration(
+        labelText: 'Gender',
+        prefixIcon: Icon(Icons.wc),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please select your gender';
         }
         return null;
       },
-      items: const [
+      items: [
         DropdownMenuItem(
           value: 'M',
-          child: Text('Male'),
+          child: Row(
+            children: const [
+              Icon(Icons.male, color: Colors.blue),
+              SizedBox(width: 8),
+              Text('Male'),
+            ],
+          ),
         ),
         DropdownMenuItem(
           value: 'F',
-          child: Text('Female'),
+          child: Row(
+            children: const [
+              Icon(Icons.female, color: Colors.pink),
+              SizedBox(width: 8),
+              Text('Female'),
+            ],
+          ),
+        ),
+        DropdownMenuItem(
+          value: 'N',
+          child: Row(
+            children: const [
+              Icon(Icons.transgender, color: Colors.grey),
+              SizedBox(width: 8),
+              Text('None'),
+            ],
+          ),
         ),
       ],
     );

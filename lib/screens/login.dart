@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom-form-field.dart'; // Import CustomFormField
 import 'registration.dart'; // Import registration page
 
@@ -36,7 +37,30 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        automaticallyImplyLeading: false,
+        title: Center(
+          child: Column(
+            children: [
+              Text(
+                'MyLabGo',
+                style: GoogleFonts.lobster(
+                  textStyle: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.lightBlue,
+                  ),
+                ),
+              ),
+              const Text(
+                'Login',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -48,11 +72,13 @@ class _LoginPageState extends State<LoginPage> {
               CustomFormField(
                 controller: _emailController,
                 label: 'Email',
+                icon: Icons.email,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
-                  if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA0-9.-]+\.[a-zA-Z]{2,}$')
+                  if (!RegExp(
+                          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                       .hasMatch(value)) {
                     return 'Please enter a valid email';
                   }
@@ -65,6 +91,7 @@ class _LoginPageState extends State<LoginPage> {
               CustomFormField(
                 controller: _passwordController,
                 label: 'Password',
+                icon: Icons.lock,
                 isPassword: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -76,11 +103,54 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 16),
 
               // Submit button
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Login'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Background color
+                    foregroundColor: Colors.white, // Text color
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text('Login', style: TextStyle(fontSize: 18)),
+                ),
               ),
+              const SizedBox(height: 16),
 
+              // Login using camera button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Handle login using camera
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Background color
+                    foregroundColor: Colors.white, // Text color
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text('Login using Camera',
+                      style: TextStyle(fontSize: 18)),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Login as Lab button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Handle login as lab
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange, // Background color
+                    foregroundColor: Colors.white, // Text color
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text('Login as Lab',
+                      style: TextStyle(fontSize: 18)),
+                ),
+              ),
               const SizedBox(height: 16),
 
               // Redirect to registration page
@@ -88,10 +158,16 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegistrationPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const RegistrationPage()),
                   );
                 },
-                child: const Text('Don\'t have an account? Register here.'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.blue, // Text color
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: const Text('Don\'t have an account? Register here.',
+                    style: TextStyle(fontSize: 18)),
               ),
             ],
           ),
