@@ -12,9 +12,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'My Lab Go!',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
+        colorScheme:
+            ColorScheme.fromSwatch(primarySwatch: Colors.lightBlue).copyWith(
+          secondary: Colors.lightBlueAccent,
+        ),
         useMaterial3: true,
       ),
       home: const RegistrationPage(), // Start with the registration page
