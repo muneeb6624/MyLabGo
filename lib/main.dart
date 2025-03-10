@@ -20,8 +20,34 @@ class MyApp extends StatelessWidget {
           secondary: Colors.lightBlueAccent,
         ),
         useMaterial3: true,
+        scaffoldBackgroundColor:
+            Colors.transparent, // Set scaffold background to transparent
       ),
-      home: const RegistrationPage(), // Start with the registration page
+      home: const GradientBackground(
+          child: RegistrationPage()), // Start with the registration page
+    );
+  }
+}
+
+class GradientBackground extends StatelessWidget {
+  final Widget child;
+
+  const GradientBackground({required this.child, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            Color(0xFFFDFEFF), // Color Gradient left
+            Color(0xFFDFF6F9), // Right
+          ],
+        ),
+      ),
+      child: child,
     );
   }
 }

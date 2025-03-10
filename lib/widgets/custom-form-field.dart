@@ -18,19 +18,31 @@ class CustomFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: icon != null ? Icon(icon) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, color: const Color.fromARGB(255, 20, 133, 167)),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              obscureText: isPassword,
+              decoration: InputDecoration(
+                labelText: label,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 12.0),
+              ),
+              validator: validator,
+            ),
+          ),
+        ],
       ),
-      validator: validator,
     );
   }
 }

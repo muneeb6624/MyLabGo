@@ -1,6 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/custom-form-field.dart'; // Import CustomFormField
+import 'package:mylab_go/main.dart';
+import 'package:mylab_go/widgets/custom-form-field.dart';
+import 'package:mylab_go/widgets/custom_app_bar.dart';
+import '../widgets/custom_form_field.dart'; // Import CustomFormField
 import 'registration.dart'; // Import registration page
 
 class LoginPage extends StatefulWidget {
@@ -35,142 +39,162 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Center(
-          child: Column(
-            children: [
-              Text(
-                'MyLabGo',
-                style: GoogleFonts.lobster(
-                  textStyle: const TextStyle(
-                    fontSize: 22,
+    return GradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: const CustomAppBar(title: 'MyLabGo'),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10.0,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                const Text(
+                  'Login Account',
+                  style: TextStyle(
+                    fontSize: 25,
                     fontWeight: FontWeight.bold,
-                    color: Colors.lightBlue,
                   ),
                 ),
-              ),
-              const Text(
-                'Login',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 20),
+                Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    children: [
+                      CustomFormField(
+                        controller: _emailController,
+                        label: 'Email',
+                        icon: Icons.email,
+                      ),
+                      const SizedBox(height: 10),
+                      CustomFormField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        icon: Icons.lock,
+                        isPassword: true,
+                      ),
+                      const SizedBox(height: 10),
+                      buildCustomButton(
+                        'Login',
+                        Icons.check,
+                        Colors.cyan, // button color
+                        Colors.black, // icon color
+                        _submitForm,
+                      ),
+                      const SizedBox(height: 10),
+                      buildCustomButton(
+                        'Login using Camera',
+                        Icons.camera_alt,
+                        Colors.green,
+                        Colors.black,
+                        () {},
+                      ),
+                      const SizedBox(height: 10),
+                      buildCustomButton(
+                        'Login as Lab',
+                        Icons.medical_services,
+                        Colors.orange,
+                        Colors.black,
+                        () {},
+                      ),
+                      const SizedBox(height: 20),
+
+                      /// Updated "Already have an account? Login" section
+                      RichText(
+                        text: TextSpan(
+                          text: 'Do not have an account? ',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey, // Normal text color
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Signup',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.cyan,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RegistrationPage()),
+                                  );
+                                },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // Email field
-              CustomFormField(
-                controller: _emailController,
-                label: 'Email',
-                icon: Icons.email,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(
-                          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                      .hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+    );
+  }
 
-              // Password field
-              CustomFormField(
-                controller: _passwordController,
-                label: 'Password',
-                icon: Icons.lock,
-                isPassword: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Submit button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Background color
-                    foregroundColor: Colors.white, // Text color
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text('Login', style: TextStyle(fontSize: 18)),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Login using camera button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle login using camera
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // Background color
-                    foregroundColor: Colors.white, // Text color
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text('Login using Camera',
-                      style: TextStyle(fontSize: 18)),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Login as Lab button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle login as lab
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange, // Background color
-                    foregroundColor: Colors.white, // Text color
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text('Login as Lab',
-                      style: TextStyle(fontSize: 18)),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Redirect to registration page
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const RegistrationPage()),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blue, // Text color
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-                child: const Text('Don\'t have an account? Register here.',
-                    style: TextStyle(fontSize: 18)),
-              ),
-            ],
+  /// Custom button widget
+  Widget buildCustomButton(
+    String text,
+    IconData icon,
+    Color buttonColor,
+    Color iconColor,
+    VoidCallback onPressed,
+  ) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: buttonColor,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
           ),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+            const SizedBox(width: 10), // spacing bet text and icon
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white, // White background for icon
+                borderRadius:
+                    BorderRadius.circular(5), // slightly rounded edges
+              ),
+              child: Center(
+                child: Icon(icon, size: 33, color: iconColor),
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
         ),
       ),
     );
