@@ -4,3 +4,4 @@ class AuthenticationService {
     // Call to backend for registration
   }
 }
+ 
