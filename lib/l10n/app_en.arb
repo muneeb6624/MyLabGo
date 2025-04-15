@@ -1,0 +1,22 @@
+{
+  "language": "English",
+  "app_title": "MyLabGo!",
+  "register": "Register",
+  "login": "Login",
+  "toggle_language": "Switch Language",
+  "create_account": "Create Account",
+  "email": "Email",
+  "password": "Password",
+  "confirm_password": "Confirm Password",
+  "age": "Age",
+  "gender": "Gender",
+  "register_using_camera": "Register using Camera",
+  "register_as_lab": "Register as Lab",
+  "already_have_account": "Already have an account?",
+  "do_not_have_account": "Do not have an account?",
+  "signup": "Signup",
+  "male": "male",
+  "female": "faizan",
+  "other": "other"
+
+  }

@@ -5,8 +5,10 @@ import 'package:mylab_go/screens/login.dart';
 import 'package:mylab_go/widgets/custom-form-field.dart';
 import 'package:mylab_go/widgets/custom_app_bar.dart';
 import 'package:mylab_go/widgets/gender-dropdown.dart';
+// ignore: unused_import
 import '../widgets/gender_dropdown.dart';
 import '../widgets/custom_form_field.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -48,7 +50,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: const CustomAppBar(title: 'MyLabGo'),
+        appBar: CustomAppBar(title: AppLocalizations.of(context)!.app_title),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Container(

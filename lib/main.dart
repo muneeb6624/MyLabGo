@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mylab_go/screens/registration.dart';
 import 'package:mylab_go/screens/login.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mylab_go/l10n/l10n.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,6 +26,14 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor:
             Colors.transparent, // Set scaffold background to transparent
       ),
+      supportedLocales: L10n.supportedLocales,
+      locale: const Locale('ur'),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: const GradientBackground(
           child: RegistrationPage()), // Start with the registration page
     );

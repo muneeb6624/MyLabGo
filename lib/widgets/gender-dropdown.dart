@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GenderDropdown extends StatelessWidget {
   final TextEditingController genderController;
@@ -12,7 +13,11 @@ class GenderDropdown extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Image.asset('assets/icons/gender.png',height:24 ,width: 24,),
+          Image.asset(
+            'assets/icons/gender.png',
+            height: 24,
+            width: 24,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: DropdownButtonFormField<String>(
@@ -26,8 +31,10 @@ class GenderDropdown extends StatelessWidget {
                 contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16.0, vertical: 12.0),
               ),
-              items: const [
-                DropdownMenuItem(value: 'Male', child: Text('Male')),
+              items: [
+                DropdownMenuItem(
+                    value: 'Male',
+                    child: Text(AppLocalizations.of(context)!.male)),
                 DropdownMenuItem(value: 'Female', child: Text('Female')),
                 DropdownMenuItem(value: 'Other', child: Text('Other')),
               ],
