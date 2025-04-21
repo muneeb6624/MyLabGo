@@ -9,6 +9,7 @@ import 'package:mylab_go/widgets/gender-dropdown.dart';
 import '../widgets/gender_dropdown.dart';
 import '../widgets/custom_form_field.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import './home.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -27,12 +28,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _confirmPasswordController = TextEditingController();
 
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration Successful!')),
+  if (_formKey.currentState!.validate()) {
+    // Optional: Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Registration Successful!')),
+    );
+
+    // Add a slight delay to allow the SnackBar to show before navigating
+    Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
       );
-    }
+    });
   }
+}
+
 
   @override
   void dispose() {

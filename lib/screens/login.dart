@@ -6,6 +6,7 @@ import 'package:mylab_go/widgets/custom-form-field.dart';
 import 'package:mylab_go/widgets/custom_app_bar.dart';
 import '../widgets/custom_form_field.dart'; // Import CustomFormField
 import 'registration.dart'; // Import registration page
+import './home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,7 +28,17 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful!')),
       );
+
+      // Add a slight delay to allow the SnackBar to show before navigating
+    Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    });
     }
+
+
   }
 
   @override
