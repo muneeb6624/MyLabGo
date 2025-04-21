@@ -1,7 +1,8 @@
 // lib/screens/tests_screen.dart
 import 'package:flutter/material.dart';
 import '../widgets/custom_tests_card.dart';
-import '../data/test_data.dart'; // <-- 👈 important import
+//import '../data/test_data.dart'; 
+import '../screens/lab_details.dart'; 
 
 class TestsScreen extends StatelessWidget {
   final String labName;

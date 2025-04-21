@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom-lab-card.dart';
+import 'tests_screen.dart';
+import '../screens/lab_details.dart';
 
-// Lab model (You can move this to a separate file if needed)
+// Lab model
 class Lab {
   final String labName;
   final String location;
   final double rating;
+  final List<TestData> tests;
 
   Lab({
     required this.labName,
     required this.location,
     required this.rating,
+    required this.tests,
   });
 }
 
@@ -24,13 +28,27 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
 
-  // 👇 Sample lab data
   final List<Lab> _labs = [
-    Lab(labName: 'HealthCheck Diagnostics', location: 'New York, NY', rating: 4.5),
-    Lab(labName: 'Wellness Lab', location: 'Los Angeles, CA', rating: 4.7),
-    Lab(labName: 'Precision Path Lab', location: 'Chicago, IL', rating: 4.3),
-    Lab(labName: 'LifeLabs', location: 'Houston, TX', rating: 4.6),
-    Lab(labName: 'MediLab Experts', location: 'Phoenix, AZ', rating: 4.4),
+    Lab(
+      labName: 'HealthCheck Diagnostics',
+      location: 'New York, NY',
+      rating: 4.5,
+      tests: [
+        TestData(
+          name: 'Blood Test',
+          price: 49.99,
+          duration: '1 day',
+          description: 'Comprehensive blood panel',
+        ),
+        TestData(
+          name: 'COVID-19 PCR',
+          price: 99.00,
+          duration: '6 hours',
+          description: 'Reliable COVID-19 testing',
+        ),
+      ],
+    ),
+    // Add more labs here if needed
   ];
 
   @override
@@ -51,7 +69,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔍 Search Bar
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -66,8 +83,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // 👋 Welcome Text
             const Text(
               'Welcome to MyLabGo!',
               style: TextStyle(
@@ -82,8 +97,6 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 20),
-
-            // 🧪 Available Labs Section
             const Text(
               'Available Labs',
               style: TextStyle(
@@ -94,7 +107,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
 
-            // 📋 List of Lab Cards (Dynamic)
+            // 📋 Lab cards
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -111,9 +124,19 @@ class _HomePageState extends State<HomePage> {
                     openingHours: 'Mon - Fri: 9:00 AM - 5:00 PM',
                     contactNumber: '+1-800-123-4567',
                     email: 'info@${lab.labName.toLowerCase().replaceAll(" ", "")}.com',
+
+                    // 👇 Pass the required 'availableTests' argument
+                    availableTests: lab.tests,
+
                     onViewTests: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Viewing Tests for ${lab.labName}')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TestsScreen(
+                            labName: lab.labName,
+                            tests: lab.tests, // 👈 actual test data per lab
+                          ),
+                        ),
                       );
                     },
                     onBookNow: () {

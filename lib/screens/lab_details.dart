@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_tests_card.dart'; // Update this with actual path
 
+
+// filepath: lab_details_screen.dart
+
 class TestData {
   final String name;
   final double price;
@@ -27,41 +30,9 @@ class LabDetailsScreen extends StatelessWidget {
   final String contactNumber;
   final String email;
 
-  // NEW: Sample test data
-  final List<TestData> availableTests = [
-    TestData(
-      name: 'Blood Test',
-      price: 50.0,
-      duration: '30 mins',
-      description: 'Comprehensive blood panel',
-    ),
-    TestData(
-      name: 'X-Ray',
-      price: 70.0,
-      duration: '20 mins',
-      description: 'Chest and bone imaging',
-    ),
-    TestData(
-      name: 'MRI Scan',
-      price: 300.0,
-      duration: '1 hour',
-      description: 'Full body MRI scan',
-    ),
-    TestData(
-      name: 'Covid-19 PCR',
-      price: 25.0,
-      duration: '15 mins',
-      description: 'RT-PCR for Covid-19',
-    ),
-    TestData(
-      name: 'Thyroid Test',
-      price: 40.0,
-      duration: '25 mins',
-      description: 'TSH, T3, T4 levels',
-    ),
-  ];
+  final List<TestData> availableTests; // ✅ NEW: Passed from parent
 
-  LabDetailsScreen({
+  const LabDetailsScreen({
     Key? key,
     required this.labName,
     this.labImageUrl,
@@ -71,6 +42,7 @@ class LabDetailsScreen extends StatelessWidget {
     required this.openingHours,
     required this.contactNumber,
     required this.email,
+    required this.availableTests, // ✅ add to constructor
   }) : super(key: key);
 
   @override
@@ -85,11 +57,12 @@ class LabDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              labName,
+              "About $labName",
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
+             
             ),
             const SizedBox(height: 16),
 
@@ -193,7 +166,6 @@ class LabDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // NEW: Available Tests Section
             const Text(
               'Available Tests',
               style: TextStyle(
