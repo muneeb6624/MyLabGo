@@ -14,7 +14,7 @@ class GenderDropdown extends StatelessWidget {
       child: Row(
         children: [
           Image.asset(
-            'assets/icons/gender.png',
+            'assets/icons/gender.png', // main gender icon
             height: 24,
             width: 24,
           ),
@@ -24,7 +24,7 @@ class GenderDropdown extends StatelessWidget {
               value:
                   genderController.text.isEmpty ? null : genderController.text,
               decoration: InputDecoration(
-                labelText: 'Gender',
+                labelText: AppLocalizations.of(context)!.gender,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -33,10 +33,47 @@ class GenderDropdown extends StatelessWidget {
               ),
               items: [
                 DropdownMenuItem(
-                    value: 'Male',
-                    child: Text(AppLocalizations.of(context)!.male)),
-                DropdownMenuItem(value: 'Female', child: Text('Female')),
-                DropdownMenuItem(value: 'Other', child: Text('Other')),
+                  value: 'Male',
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/male.png',
+                        width: 30,
+                        height: 30,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(AppLocalizations.of(context)!.male),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'Female',
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/female.png',
+                        width: 30,
+                        height: 30,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(AppLocalizations.of(context)!.female),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'Other',
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/transgender.png',
+                        width: 30,
+                        height: 30,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(AppLocalizations.of(context)!.other),
+                    ],
+                  ),
+                ),
               ],
               onChanged: (value) {
                 genderController.text = value!;

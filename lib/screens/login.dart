@@ -6,6 +6,7 @@ import 'package:mylab_go/widgets/custom-form-field.dart';
 import 'package:mylab_go/widgets/custom_app_bar.dart';
 import '../widgets/custom_form_field.dart'; // Import CustomFormField
 import 'registration.dart'; // Import registration page
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -75,19 +76,19 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       CustomFormField(
                         controller: _emailController,
-                        label: 'Email',
+                        label: AppLocalizations.of(context)!.email,
                         icon: Icons.email,
                       ),
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _passwordController,
-                        label: 'Password',
+                        label: AppLocalizations.of(context)!.password,
                         icon: Icons.lock,
                         isPassword: true,
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Login',
+                        AppLocalizations.of(context)!.login,
                         Icons.check,
                         Colors.cyan, // button color
                         Colors.black, // icon color
@@ -95,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Login using Camera',
+                        AppLocalizations.of(context)!.login_using_camera,
                         Icons.camera_alt,
                         Colors.green,
                         Colors.black,
@@ -103,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Login as Lab',
+                        AppLocalizations.of(context)!.login_as_lab,
                         Icons.medical_services,
                         Colors.orange,
                         Colors.black,
@@ -114,14 +115,15 @@ class _LoginPageState extends State<LoginPage> {
                       /// Updated "Already have an account? Login" section
                       RichText(
                         text: TextSpan(
-                          text: 'Do not have an account? ',
+                          text:
+                              AppLocalizations.of(context)!.do_not_have_account,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey, // Normal text color
                           ),
                           children: [
                             TextSpan(
-                              text: 'Signup',
+                              text: AppLocalizations.of(context)!.signup,
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.cyan,

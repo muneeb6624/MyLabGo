@@ -68,9 +68,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'Create Account',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.create_account,
+                  style: const TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                   ),
@@ -83,19 +83,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     children: [
                       CustomFormField(
                         controller: _nameController,
-                        label: 'Name',
+                        label: AppLocalizations.of(context)!.name,
                         icon: Icons.person,
                       ),
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _emailController,
-                        label: 'Email',
+                        label: AppLocalizations.of(context)!.email,
                         icon: Icons.email,
                       ),
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _ageController,
-                        label: 'Age',
+                        label: AppLocalizations.of(context)!.age,
                         icon: Icons.cake,
                       ),
                       const SizedBox(height: 10),
@@ -103,20 +103,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _passwordController,
-                        label: 'Password',
+                        label: AppLocalizations.of(context)!.password,
                         icon: Icons.lock,
                         isPassword: true,
                       ),
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _confirmPasswordController,
-                        label: 'Confirm Password',
+                        label: AppLocalizations.of(context)!.confirm_password,
                         icon: Icons.lock,
                         isPassword: true,
                       ),
                       const SizedBox(height: 20),
                       buildCustomButton(
-                        'Register',
+                        AppLocalizations.of(context)!.register,
                         Icons.check,
                         Colors.cyan, // button color
                         Colors.black, // icon color
@@ -124,7 +124,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Register using Camera',
+                        AppLocalizations.of(context)!.register_using_camera,
                         Icons.camera_alt,
                         Colors.green,
                         Colors.black,
@@ -132,7 +132,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Register as Lab',
+                        AppLocalizations.of(context)!.register_as_lab,
                         Icons.medical_services,
                         Colors.orange,
                         Colors.black,
@@ -143,14 +143,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       /// Updated "Already have an account? Login" section
                       RichText(
                         text: TextSpan(
-                          text: 'Already have an account? ',
+                          text: AppLocalizations.of(context)!
+                              .already_have_account,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey, // Normal text color
                           ),
                           children: [
                             TextSpan(
-                              text: 'Login',
+                              text: AppLocalizations.of(context)!.login,
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.cyan,
