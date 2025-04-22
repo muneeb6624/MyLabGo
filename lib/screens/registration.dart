@@ -1,7 +1,13 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:mylab_go/main.dart';
 import 'package:mylab_go/screens/login.dart';
-import '../widgets/gender-dropdown.dart';
-import '../widgets/custom-form-field.dart'; // Ensure this is correctly imported
+import 'package:mylab_go/widgets/custom-form-field.dart';
+import 'package:mylab_go/widgets/custom_app_bar.dart';
+import 'package:mylab_go/widgets/gender-dropdown.dart';
+// ignore: unused_import
+import '../widgets/gender_dropdown.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -11,7 +17,6 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  // Form controllers
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -20,10 +25,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  // Form validation
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // Handle form submission
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registration Successful!')),
       );
@@ -43,117 +46,184 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Patient Registration'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // Name field
-              CustomFormField(
-                controller: _nameController,
-                label: 'Name',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+    return GradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: CustomAppBar(title: AppLocalizations.of(context)!.app_title),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10.0,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.create_account,
+                  style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    children: [
+                      CustomFormField(
+                        controller: _nameController,
+                        label: AppLocalizations.of(context)!.name,
+                        icon: Icons.person,
+                      ),
+                      const SizedBox(height: 10),
+                      CustomFormField(
+                        controller: _emailController,
+                        label: AppLocalizations.of(context)!.email,
+                        icon: Icons.email,
+                      ),
+                      const SizedBox(height: 10),
+                      CustomFormField(
+                        controller: _ageController,
+                        label: AppLocalizations.of(context)!.age,
+                        icon: Icons.cake,
+                      ),
+                      const SizedBox(height: 10),
+                      GenderDropdown(genderController: _genderController),
+                      const SizedBox(height: 10),
+                      CustomFormField(
+                        controller: _passwordController,
+                        label: AppLocalizations.of(context)!.password,
+                        icon: Icons.lock,
+                        isPassword: true,
+                      ),
+                      const SizedBox(height: 10),
+                      CustomFormField(
+                        controller: _confirmPasswordController,
+                        label: AppLocalizations.of(context)!.confirm_password,
+                        icon: Icons.lock,
+                        isPassword: true,
+                      ),
+                      const SizedBox(height: 20),
+                      buildCustomButton(
+                        AppLocalizations.of(context)!.register,
+                        Icons.check,
+                        Colors.cyan, // button color
+                        Colors.black, // icon color
+                        _submitForm,
+                      ),
+                      const SizedBox(height: 10),
+                      buildCustomButton(
+                        AppLocalizations.of(context)!.register_using_camera,
+                        Icons.camera_alt,
+                        Colors.green,
+                        Colors.black,
+                        () {},
+                      ),
+                      const SizedBox(height: 10),
+                      buildCustomButton(
+                        AppLocalizations.of(context)!.register_as_lab,
+                        Icons.medical_services,
+                        Colors.orange,
+                        Colors.black,
+                        () {},
+                      ),
+                      const SizedBox(height: 20),
 
-              // Email field
-              CustomFormField(
-                controller: _emailController,
-                label: 'Email',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                      .hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Age field
-              CustomFormField(
-                controller: _ageController,
-                label: 'Age',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your age';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Please enter a valid age';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Gender dropdown
-              GenderDropdown(genderController: _genderController),
-              const SizedBox(height: 16),
-
-              // Password field
-              CustomFormField(
-                controller: _passwordController,
-                label: 'Password',
-                isPassword: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Confirm password field
-              CustomFormField(
-                controller: _confirmPasswordController,
-                label: 'Confirm Password',
-                isPassword: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Submit button
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Register'),
-              ),
-            TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-                child: const Text('Already have an account? Sign in!'),
-              ),
-            ],
-            
+                      /// Updated "Already have an account? Login" section
+                      RichText(
+                        text: TextSpan(
+                          text: AppLocalizations.of(context)!
+                              .already_have_account,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey, // Normal text color
+                          ),
+                          children: [
+                            TextSpan(
+                              text: AppLocalizations.of(context)!.login,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.cyan,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginPage()),
+                                  );
+                                },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Custom button widget
+  Widget buildCustomButton(
+    String text,
+    IconData icon,
+    Color buttonColor,
+    Color iconColor,
+    VoidCallback onPressed,
+  ) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: buttonColor,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+            const SizedBox(width: 10), // spacing bet text and icon
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white, // White background for icon
+                borderRadius:
+                    BorderRadius.circular(5), // slightly rounded edges
+              ),
+              child: Center(
+                child: Icon(icon, size: 33, color: iconColor),
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
         ),
       ),
     );
