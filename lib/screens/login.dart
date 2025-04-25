@@ -1,12 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mylab_go/main.dart';
 import 'package:mylab_go/widgets/custom-form-field.dart';
 import 'package:mylab_go/widgets/custom_app_bar.dart';
-import '../widgets/custom_form_field.dart'; // Import CustomFormField
+// Import CustomFormField
 import 'registration.dart'; // Import registration page
 import './home.dart';
+import '../services/firebase_auth.dart'; // adjust the path if different
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,24 +23,34 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   // Form validation
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Handle form submission
+void _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    final authService = FirebaseAuthService();
+
+    final user = await authService.loginWithEmailAndPassword(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    if (user != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login Successful!')),
+        const SnackBar(content: Text('🎉 Login Successful!')),
       );
 
-      // Add a slight delay to allow the SnackBar to show before navigating
-    Future.delayed(const Duration(milliseconds: 500), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+      Future.delayed(const Duration(milliseconds: 500), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('⚠️ Login failed. Check credentials.')),
       );
-    });
     }
-
-
   }
+}
+
 
   @override
   void dispose() {

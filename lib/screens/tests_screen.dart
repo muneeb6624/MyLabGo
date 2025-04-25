@@ -9,10 +9,10 @@ class TestsScreen extends StatelessWidget {
   final List<TestData> tests;
 
   const TestsScreen({
-    Key? key,
+    super.key,
     required this.labName,
     required this.tests,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

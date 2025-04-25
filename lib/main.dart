@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mylab_go/screens/registration.dart';
-import 'package:mylab_go/screens/login.dart';
+//import 'package:mylab_go/screens/login.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mylab_go/l10n/l10n.dart';
-
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import './firebase_options.dart';
+//import 'firebase_options.dart';
+void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   runApp(const MyApp());
 }
 
@@ -43,7 +51,7 @@ class MyApp extends StatelessWidget {
 class GradientBackground extends StatelessWidget {
   final Widget child;
 
-  const GradientBackground({required this.child, Key? key}) : super(key: key);
+  const GradientBackground({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {

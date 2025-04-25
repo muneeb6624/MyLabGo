@@ -33,7 +33,7 @@ class LabDetailsScreen extends StatelessWidget {
   final List<TestData> availableTests; // ✅ NEW: Passed from parent
 
   const LabDetailsScreen({
-    Key? key,
+    super.key,
     required this.labName,
     this.labImageUrl,
     required this.location,
@@ -43,7 +43,7 @@ class LabDetailsScreen extends StatelessWidget {
     required this.contactNumber,
     required this.email,
     required this.availableTests, // ✅ add to constructor
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -81,11 +81,11 @@ class LabDetailsScreen extends StatelessWidget {
               children: [
                 TableRow(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
                       child: Text(
                         'Location',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
@@ -96,11 +96,11 @@ class LabDetailsScreen extends StatelessWidget {
                 ),
                 TableRow(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
                       child: Text(
                         'Rating',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(

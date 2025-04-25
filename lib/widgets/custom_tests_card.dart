@@ -9,13 +9,13 @@ class CustomTestsCard extends StatelessWidget {
   final VoidCallback onBook;
 
   const CustomTestsCard({
-    Key? key,
+    super.key,
     required this.testName,
     required this.price,
     required this.duration,
     this.description,
     required this.onBook,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

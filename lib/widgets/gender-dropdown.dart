@@ -4,8 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class GenderDropdown extends StatelessWidget {
   final TextEditingController genderController;
 
-  const GenderDropdown({required this.genderController, Key? key})
-      : super(key: key);
+  const GenderDropdown({required this.genderController, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +34,8 @@ class GenderDropdown extends StatelessWidget {
                 DropdownMenuItem(
                     value: 'Male',
                     child: Text(AppLocalizations.of(context)!.male)),
-                DropdownMenuItem(value: 'Female', child: Text('Female')),
-                DropdownMenuItem(value: 'Other', child: Text('Other')),
+                const DropdownMenuItem(value: 'Female', child: Text('Female')),
+                const DropdownMenuItem(value: 'Other', child: Text('Other')),
               ],
               onChanged: (value) {
                 genderController.text = value!;

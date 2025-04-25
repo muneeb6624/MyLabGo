@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../widgets/custom-lab-card.dart';
 import 'tests_screen.dart';
 import '../screens/lab_details.dart';
@@ -23,11 +26,22 @@ class HomePage extends StatefulWidget {
 
   @override
   State<HomePage> createState() => _HomePageState();
+
 }
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
 
+  // TO GET WHICH USER IS LOGGED IN
+ Future<Map<String, dynamic>?> getUserData() async {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  if (uid == null) return null;
+
+  final doc = await FirebaseFirestore.instance.collection('UserData').doc(uid).get();
+  return doc.data();
+}
+
+// ARRAY FOR LABS
   final List<Lab> _labs = [
     Lab(
       labName: 'HealthCheck Diagnostics',
@@ -57,12 +71,56 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+
+// WIDGET BUILD METHOD
+  // This method builds the UI of the HomePage
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('MyLabGo'),
         backgroundColor: Colors.cyan,
+        actions: [
+          FutureBuilder<Map<String, dynamic>?>(
+  future: getUserData(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return const CircularProgressIndicator(); // or a shimmer
+    }
+
+    final userData = snapshot.data!;
+    final name = userData['name'] ?? 'User';
+    final firstLetter = name.isNotEmpty ? name[0].toUpperCase() : 'U';
+
+    return Row(
+      children: [
+        Text(
+          name,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(width: 10),
+        CircleAvatar(
+          backgroundColor: Colors.white,
+          child: Text(
+            firstLetter,
+            style: const TextStyle(
+              color: Colors.cyan,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  },
+),
+
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),

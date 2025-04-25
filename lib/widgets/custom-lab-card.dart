@@ -16,7 +16,7 @@ class CustomLabCard extends StatelessWidget {
   final VoidCallback onBookNow;
 
   const CustomLabCard({
-    Key? key,
+    super.key,
     required this.labName,
     required this.location,
     required this.rating,
@@ -27,7 +27,7 @@ class CustomLabCard extends StatelessWidget {
     required this.availableTests, // ✅ Required parameter
     required this.onViewTests,
     required this.onBookNow,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

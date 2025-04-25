@@ -8,13 +8,13 @@ class CustomFormField extends StatelessWidget {
   final String? Function(String?)? validator;
 
   const CustomFormField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     this.isPassword = false,
     this.icon,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
