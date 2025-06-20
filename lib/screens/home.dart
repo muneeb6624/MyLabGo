@@ -1,8 +1,41 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
+
 import '../widgets/custom-lab-card.dart';
 import 'tests_screen.dart';
+
+import './lab_details.dart';
+
+class Lab {
+  final String labName;
+  final String locationString;
+  final String email;
+  final String about;
+  final double rating;
+  final List<TestData> tests;
+  final double latitude;
+  final double longitude;
+  final String imgUrl;
+  final String docId;
+  final double distanceKm;
+
+  Lab({
+    required this.labName,
+    required this.locationString,
+    required this.email,
+    required this.about,
+    required this.rating,
+    required this.tests,
+    required this.latitude,
+    required this.longitude,
+    required this.imgUrl,
+    required this.docId,
+    required this.distanceKm,
+  });
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,18 +46,116 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+  List<Lab> _allLabs = [];
+  List<Lab> _filteredLabs = [];
+  Position? _userPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLabs();
+  }
+
+  Future<void> _loadLabs() async {
+    try {
+      // 👇👇 MOCK LOCATION for web/Chrome
+      _userPosition = Position(
+        latitude: 35.6895, // Tokyo
+        longitude: 139.6917,
+        timestamp: DateTime.now(),
+        accuracy: 1.0,
+        altitude: 0.0,
+        heading: 0.0,
+        speed: 0.0,
+        speedAccuracy: 0.0,
+        altitudeAccuracy: 1.0,
+        headingAccuracy: 1.0,
+      );
+
+      // ✅ THIS is the real logic — uncomment this on Android/iOS real device
+      // _userPosition = await Geolocator.getCurrentPosition();
+
+      final snapshot = await FirebaseFirestore.instance.collection('LabData').get();
+
+      List<Lab> labs = [];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final latLng = data['location'];
+        if (latLng == null) continue;
+
+        final double labLat = latLng.latitude ?? 0.0;
+        final double labLng = latLng.longitude ?? 0.0;
+
+        final distance = _calculateDistance(
+          _userPosition!.latitude,
+          _userPosition!.longitude,
+          labLat,
+          labLng,
+        );
+
+        labs.add(
+          Lab(
+            docId: doc.id,
+            labName: data['labName'] ?? 'N/A',
+            locationString: data['locationString'] ?? 'N/A',
+            email: data['email'] ?? 'N/A',
+            about: data['description'] ?? 'N/A',
+            rating: 4.0, // Static for now
+            tests: [],   // Will be added later
+            latitude: labLat,
+            longitude: labLng,
+            imgUrl: data['imgUrl'] ?? '',
+            distanceKm: distance,
+          ),
+        );
+      }
+
+      labs.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
+
+      setState(() {
+        _allLabs = labs;
+        _filteredLabs = labs;
+      });
+    } catch (e) {
+      debugPrint('❌ Error loading labs: $e');
+    }
+  }
+
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const R = 6371; // Earth radius in km
+    final dLat = _deg2rad(lat2 - lat1);
+    final dLon = _deg2rad(lon2 - lon1);
+    final a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_deg2rad(lat1)) * cos(_deg2rad(lat2)) *
+            sin(dLon / 2) * sin(dLon / 2);
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return R * c;
+  }
+
+  double _deg2rad(double deg) => deg * (pi / 180);
+
+  void _filterLabs(String query) {
+    if (query.isEmpty) {
+      setState(() => _filteredLabs = _allLabs);
+      return;
+    }
+
+    final lower = query.toLowerCase();
+    final filtered = _allLabs.where((lab) {
+      return lab.labName.toLowerCase().contains(lower) ||
+          lab.email.toLowerCase().contains(lower) ||
+          lab.locationString.toLowerCase().contains(lower);
+    }).toList();
+
+    setState(() => _filteredLabs = filtered);
+  }
 
   Future<Map<String, dynamic>?> getUserData() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return null;
-
     final doc = await FirebaseFirestore.instance.collection('UserData').doc(uid).get();
     return doc.data();
-  }
-
-  Future<List<Map<String, dynamic>>> getLabs() async {
-    final snapshot = await FirebaseFirestore.instance.collection('LabData').get();
-    return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
   @override
@@ -35,8 +166,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('MyLabGo'),
@@ -47,15 +176,13 @@ class _HomePageState extends State<HomePage> {
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Padding(
-                  padding: EdgeInsets.only(right: 16),
-                  child: Center(child: CircularProgressIndicator(color: Colors.white)),
+                  padding: EdgeInsets.all(10),
+                  child: CircularProgressIndicator(color: Colors.white),
                 );
               }
-
-              final userData = snapshot.data!;
-              final name = userData['name'] ?? 'User';
-              final firstLetter = name.isNotEmpty ? name[0].toUpperCase() : 'U';
-
+              final user = snapshot.data!;
+              final name = user['name'] ?? 'User';
+              final initial = name.isNotEmpty ? name[0].toUpperCase() : 'U';
               return Row(
                 children: [
                   Text(
@@ -66,7 +193,7 @@ class _HomePageState extends State<HomePage> {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     child: Text(
-                      firstLetter,
+                      initial,
                       style: const TextStyle(
                         color: Colors.cyan,
                         fontWeight: FontWeight.bold,
@@ -77,108 +204,77 @@ class _HomePageState extends State<HomePage> {
                 ],
               );
             },
-          ),
+          )
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search labs/test...',
-                prefixIcon: const Icon(Icons.search, color: Colors.cyan),
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Welcome to MyLabGo!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.cyan),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Find the best labs near you for your medical needs.',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Available Labs',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.cyan),
-            ),
-            const SizedBox(height: 10),
-
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: getLabs(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final labs = snapshot.data ?? [];
-
-                if (labs.isEmpty) {
-                  return const Center(child: Text('No labs available at the moment.'));
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: labs.length,
-                  itemBuilder: (context, index) {
-                    final lab = labs[index];
-                    final name = lab['labName'] ?? 'Unnamed Lab';
-                    final location = lab['locationString'] ?? 'Location not provided';
-                    final description = lab['description'] ?? 'No description available';
-                    final image = lab['imgUrl'] ?? '';
-                    final rating = lab['rating'] ?? 'NA';
-                    final email = lab['email'] ?? 'N/A';
-                    final contact = lab['userName'] ?? 'N/A'; // fallback
-
+      body: _userPosition == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: _searchController,
+                    onChanged: _filterLabs,
+                    decoration: InputDecoration(
+                      hintText: 'Search labs/test...',
+                      prefixIcon: const Icon(Icons.search, color: Colors.cyan),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Available Labs',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.cyan,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  if (_filteredLabs.isEmpty)
+                    const Text("No labs found 😢"),
+                  ..._filteredLabs.map((lab) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
+                      padding: const EdgeInsets.only(bottom: 15),
                       child: CustomLabCard(
-                        labName: name,
-                        location: location,
-                        rating: rating is double ? rating : 0.0,
-                        about: description,
-                        openingHours: 'Mon - Sun: 9 AM - 9 PM',
-                        contactNumber: contact,
-                        email: email,
-                        imageUrl: image,
-                        availableTests: [], // implement tests fetch later
+                        labName: lab.labName,
+                        location: lab.locationString,
+                        rating: lab.rating,
+                        about: lab.about,
+                        openingHours: 'N/A',
+                        contactNumber: 'N/A',
+                        email: lab.email,
+                        availableTests: lab.tests,
+                        imageUrl: lab.imgUrl,
                         onViewTests: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => TestsScreen(
-                                labName: name,
-                                tests: const [], // implement with test data
+                                labName: lab.labName,
+                                tests: lab.tests,
                               ),
                             ),
                           );
                         },
                         onBookNow: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Booking $name...')),
+                            SnackBar(content: Text('Booking ${lab.labName}')),
                           );
                         },
                       ),
                     );
-                  },
-                );
-              },
+                  }),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
