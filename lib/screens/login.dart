@@ -1,13 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mylab_go/main.dart';
 import 'package:mylab_go/widgets/custom-form-field.dart';
 import 'package:mylab_go/widgets/custom_app_bar.dart';
-// Import CustomFormField
-import 'registration.dart'; // Import registration page
-import './home.dart';
-import '../services/firebase_auth.dart'; // adjust the path if different
-
+import 'registration.dart';
+import 'home.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../services/firebase_auth.dart'; // adjust path if different
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,40 +18,68 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // Form controllers
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  // Form validation
-void _submitForm() async {
-  if (_formKey.currentState!.validate()) {
-    final authService = FirebaseAuthService();
-
-    final user = await authService.loginWithEmailAndPassword(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
-
-    if (user != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('🎉 Login Successful!')),
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      final authService = FirebaseAuthService();
+      final user = await authService.loginWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+      if (user != null) {
+        // 🔍 Step 1: Try to find user in LabData
+        final labDoc = await FirebaseFirestore.instance
+            .collection('LabData')
+            .doc(user.uid)
+            .get();
+
+        if (labDoc.exists && labDoc.data()!['role'] == 'labadmin') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('🎉 Lab Admin Login Successful!')),
+          );
+          Future.delayed(const Duration(milliseconds: 500), () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          });
+          return;
+        }
+
+        // 🔍 Step 2: Check if it's a regular user
+        final userDoc = await FirebaseFirestore.instance
+            .collection('UserData')
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists && userDoc.data()!['role'] == 'user') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✅ Logged in as regular user')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+          // Redirect to another user screen if exists:
+          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const UserHomePage()));
+          return;
+        }
+
+        // ❌ If neither doc exists or no valid role
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('⚠️ Unknown user role or access denied.')),
         );
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('⚠️ Login failed. Check credentials.')),
-      );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ Login failed. Check credentials.')),
+        );
+      }
     }
   }
-}
-
 
   @override
   void dispose() {
@@ -97,53 +126,52 @@ void _submitForm() async {
                     children: [
                       CustomFormField(
                         controller: _emailController,
-                        label: 'Email',
+                        label: AppLocalizations.of(context)!.email,
                         icon: Icons.email,
                       ),
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _passwordController,
-                        label: 'Password',
+                        label: AppLocalizations.of(context)!.password,
                         icon: Icons.lock,
                         isPassword: true,
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Login',
+                        AppLocalizations.of(context)!.login,
                         Icons.check,
-                        Colors.cyan, // button color
-                        Colors.black, // icon color
+                        Colors.cyan,
+                        Colors.black,
                         _submitForm,
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Login using Camera',
+                        AppLocalizations.of(context)!.login_using_camera,
                         Icons.camera_alt,
                         Colors.green,
                         Colors.black,
-                        () {},
+                        () => Navigator.pushNamed(context, '/face-login'),
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Login as Lab',
+                        AppLocalizations.of(context)!.login_as_lab,
                         Icons.medical_services,
                         Colors.orange,
                         Colors.black,
-                        () {},
+                        () {}, // if this button is for lab-only login flow, we can reuse the role-based logic too
                       ),
                       const SizedBox(height: 20),
-
-                      /// Updated "Already have an account? Login" section
                       RichText(
                         text: TextSpan(
-                          text: 'Do not have an account? ',
+                          text:
+                              AppLocalizations.of(context)!.do_not_have_account,
                           style: const TextStyle(
                             fontSize: 16,
-                            color: Colors.grey, // Normal text color
+                            color: Colors.grey,
                           ),
                           children: [
                             TextSpan(
-                              text: 'Signup',
+                              text: AppLocalizations.of(context)!.signup,
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.cyan,
@@ -154,8 +182,8 @@ void _submitForm() async {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            const RegistrationPage()),
+                                      builder: (context) => const RegistrationPage(),
+                                    ),
                                   );
                                 },
                             ),
@@ -173,7 +201,6 @@ void _submitForm() async {
     );
   }
 
-  /// Custom button widget
   Widget buildCustomButton(
     String text,
     IconData icon,
@@ -202,14 +229,13 @@ void _submitForm() async {
                 style: const TextStyle(fontSize: 18),
               ),
             ),
-            const SizedBox(width: 10), // spacing bet text and icon
+            const SizedBox(width: 10),
             Container(
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: Colors.white, // White background for icon
-                borderRadius:
-                    BorderRadius.circular(5), // slightly rounded edges
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
               ),
               child: Center(
                 child: Icon(icon, size: 33, color: iconColor),

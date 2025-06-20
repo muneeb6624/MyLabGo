@@ -1,69 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../widgets/custom-lab-card.dart';
 import 'tests_screen.dart';
-import '../screens/lab_details.dart';
-
-// Lab model
-class Lab {
-  final String labName;
-  final String location;
-  final double rating;
-  final List<TestData> tests;
-
-  Lab({
-    required this.labName,
-    required this.location,
-    required this.rating,
-    required this.tests,
-  });
-}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
-
 }
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
 
-  // TO GET WHICH USER IS LOGGED IN
- Future<Map<String, dynamic>?> getUserData() async {
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  if (uid == null) return null;
+  Future<Map<String, dynamic>?> getUserData() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return null;
 
-  final doc = await FirebaseFirestore.instance.collection('UserData').doc(uid).get();
-  return doc.data();
-}
+    final doc = await FirebaseFirestore.instance.collection('UserData').doc(uid).get();
+    return doc.data();
+  }
 
-// ARRAY FOR LABS
-  final List<Lab> _labs = [
-    Lab(
-      labName: 'HealthCheck Diagnostics',
-      location: 'New York, NY',
-      rating: 4.5,
-      tests: [
-        TestData(
-          name: 'Blood Test',
-          price: 49.99,
-          duration: '1 day',
-          description: 'Comprehensive blood panel',
-        ),
-        TestData(
-          name: 'COVID-19 PCR',
-          price: 99.00,
-          duration: '6 hours',
-          description: 'Reliable COVID-19 testing',
-        ),
-      ],
-    ),
-    // Add more labs here if needed
-  ];
+  Future<List<Map<String, dynamic>>> getLabs() async {
+    final snapshot = await FirebaseFirestore.instance.collection('LabData').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
 
   @override
   void dispose() {
@@ -71,9 +33,6 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-
-// WIDGET BUILD METHOD
-  // This method builds the UI of the HomePage
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -84,42 +43,41 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.cyan,
         actions: [
           FutureBuilder<Map<String, dynamic>?>(
-  future: getUserData(),
-  builder: (context, snapshot) {
-    if (!snapshot.hasData) {
-      return const CircularProgressIndicator(); // or a shimmer
-    }
+            future: getUserData(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 16),
+                  child: Center(child: CircularProgressIndicator(color: Colors.white)),
+                );
+              }
 
-    final userData = snapshot.data!;
-    final name = userData['name'] ?? 'User';
-    final firstLetter = name.isNotEmpty ? name[0].toUpperCase() : 'U';
+              final userData = snapshot.data!;
+              final name = userData['name'] ?? 'User';
+              final firstLetter = name.isNotEmpty ? name[0].toUpperCase() : 'U';
 
-    return Row(
-      children: [
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white,
+              return Row(
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                  const SizedBox(width: 10),
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Text(
+                      firstLetter,
+                      style: const TextStyle(
+                        color: Colors.cyan,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              );
+            },
           ),
-        ),
-        const SizedBox(width: 10),
-        CircleAvatar(
-          backgroundColor: Colors.white,
-          child: Text(
-            firstLetter,
-            style: const TextStyle(
-              color: Colors.cyan,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-      ],
-    );
-  },
-),
-
         ],
       ),
       body: SingleChildScrollView(
@@ -143,11 +101,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             const Text(
               'Welcome to MyLabGo!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.cyan,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.cyan),
             ),
             const SizedBox(height: 10),
             const Text(
@@ -157,52 +111,68 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             const Text(
               'Available Labs',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.cyan,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.cyan),
             ),
             const SizedBox(height: 10),
 
-            // 📋 Lab cards
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _labs.length,
-              itemBuilder: (context, index) {
-                final lab = _labs[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: CustomLabCard(
-                    labName: lab.labName,
-                    location: lab.location,
-                    rating: lab.rating,
-                    about: 'We offer top-notch diagnostic services for all your health needs.',
-                    openingHours: 'Mon - Fri: 9:00 AM - 5:00 PM',
-                    contactNumber: '+1-800-123-4567',
-                    email: 'info@${lab.labName.toLowerCase().replaceAll(" ", "")}.com',
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: getLabs(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                    // 👇 Pass the required 'availableTests' argument
-                    availableTests: lab.tests,
+                final labs = snapshot.data ?? [];
 
-                    onViewTests: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TestsScreen(
-                            labName: lab.labName,
-                            tests: lab.tests, // 👈 actual test data per lab
-                          ),
-                        ),
-                      );
-                    },
-                    onBookNow: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Booking ${lab.labName}')),
-                      );
-                    },
-                  ),
+                if (labs.isEmpty) {
+                  return const Center(child: Text('No labs available at the moment.'));
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: labs.length,
+                  itemBuilder: (context, index) {
+                    final lab = labs[index];
+                    final name = lab['labName'] ?? 'Unnamed Lab';
+                    final location = lab['locationString'] ?? 'Location not provided';
+                    final description = lab['description'] ?? 'No description available';
+                    final image = lab['imgUrl'] ?? '';
+                    final rating = lab['rating'] ?? 'NA';
+                    final email = lab['email'] ?? 'N/A';
+                    final contact = lab['userName'] ?? 'N/A'; // fallback
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: CustomLabCard(
+                        labName: name,
+                        location: location,
+                        rating: rating is double ? rating : 0.0,
+                        about: description,
+                        openingHours: 'Mon - Sun: 9 AM - 9 PM',
+                        contactNumber: contact,
+                        email: email,
+                        imageUrl: image,
+                        availableTests: [], // implement tests fetch later
+                        onViewTests: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TestsScreen(
+                                labName: name,
+                                tests: const [], // implement with test data
+                              ),
+                            ),
+                          );
+                        },
+                        onBookNow: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Booking $name...')),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 );
               },
             ),

@@ -5,6 +5,7 @@
   "login": "Login",
   "toggle_language": "Switch Language",
   "create_account": "Create Account",
+  "name": "Name",
   "email": "Email",
   "password": "Password",
   "confirm_password": "Confirm Password",
@@ -12,11 +13,12 @@
   "gender": "Gender",
   "register_using_camera": "Register using Camera",
   "register_as_lab": "Register as Lab",
+  "login_using_camera": "Login using Camera",
+  "login_as_lab": "Login as Lab",
   "already_have_account": "Already have an account?",
   "do_not_have_account": "Do not have an account?",
   "signup": "Signup",
-  "male": "male",
-  "female": "faizan",
-  "other": "other"
-
-  }
+  "male": "Male",
+  "female": "Female",
+  "other": "Other"
+}

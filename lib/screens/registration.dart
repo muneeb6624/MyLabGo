@@ -7,6 +7,7 @@ import 'package:mylab_go/widgets/custom_app_bar.dart';
 import 'package:mylab_go/widgets/gender-dropdown.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 import './home.dart';
 import '../services/firebase_auth.dart';
 
@@ -29,43 +30,47 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final FirebaseAuthService _authService = FirebaseAuthService();
 
   void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      final user = await _authService.registerWithEmailAndPassword(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+  if (_formKey.currentState!.validate()) {
+    final user = await _authService.registerWithEmailAndPassword(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    if (user != null) {
+      // Save to Firestore with role
+      await FirebaseFirestore.instance
+          .collection('UserData') // Use "Users" collection (not UserData)
+          .doc(user.uid)
+          .set({
+        'uid': user.uid,
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'age': _ageController.text.trim(),
+        'gender': _genderController.text.trim(),
+        'role': 'user', // 🔑 Set the role explicitly
+        'createdAt': Timestamp.now(),
+      });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('🎉 Registration Successful!')),
       );
 
-      if (user != null) {
-        // Save to Firestore
-        await FirebaseFirestore.instance
-            .collection('UserData')
-            .doc(user.uid)
-            .set({
-          'name': _nameController.text.trim(),
-          'email': _emailController.text.trim(),
-          'age': _ageController.text.trim(),
-          'gender': _genderController.text.trim(),
-          'createdAt': Timestamp.now(),
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration Successful!')),
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
-
-        // ✅ Navigate to homepage
-        Future.delayed(const Duration(milliseconds: 500), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration failed')),
-        );
-      }
+      });
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Registration failed')),
+      );
     }
   }
+}
 
   @override
   void dispose() {
@@ -89,11 +94,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
           child: Container(
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.black.withAlpha((0.1 * 255).toInt()), // Updated to avoid deprecated withOpacity
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha((0.1 * 255).toInt()),
                   blurRadius: 10.0,
                   offset: const Offset(0, 5),
                 ),
@@ -101,9 +105,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'Create Account',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.create_account,
+                  style: const TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                   ),
@@ -116,19 +120,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     children: [
                       CustomFormField(
                         controller: _nameController,
-                        label: 'Name',
+                        label: AppLocalizations.of(context)!.name,
                         icon: Icons.person,
                       ),
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _emailController,
-                        label: 'Email',
+                        label: AppLocalizations.of(context)!.email,
                         icon: Icons.email,
                       ),
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _ageController,
-                        label: 'Age',
+                        label: AppLocalizations.of(context)!.age,
                         icon: Icons.cake,
                       ),
                       const SizedBox(height: 10),
@@ -136,14 +140,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       const SizedBox(height: 10),
                       CustomFormField(
                         controller: _passwordController,
-                        label: 'Password',
+                        label: AppLocalizations.of(context)!.password,
                         icon: Icons.lock,
                         isPassword: true,
                       ),
                       const SizedBox(height: 10),
-                      const SizedBox(height: 20),
+                      CustomFormField(
+                        controller: _confirmPasswordController,
+                        label: AppLocalizations.of(context)!.confirm_password,
+                        icon: Icons.lock,
+                      ),
+                      const SizedBox(height: 10),
                       buildCustomButton(
-                        'Register',
+                        AppLocalizations.of(context)!.register,
                         Icons.check,
                         Colors.cyan,
                         Colors.black,
@@ -151,31 +160,41 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
-                        'Register using Camera',
+                        AppLocalizations.of(context)!.register_using_camera,
                         Icons.camera_alt,
                         Colors.green,
                         Colors.black,
-                        () {},
+                        () => Navigator.pushNamed(context, '/face-register'),
                       ),
                       const SizedBox(height: 10),
-                      buildCustomButton(
-                        'Register as Lab',
+                        buildCustomButton(
+                        AppLocalizations.of(context)!.register_as_lab,
                         Icons.medical_services,
                         Colors.orange,
                         Colors.black,
-                        () {},
-                      ),
+                        () async {
+                          const url = 'https://mylabgo-admin.vercel.app/register';
+                          if (await canLaunchUrl(Uri.parse(url))) {
+                          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                          } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Could not launch URL')),
+                          );
+                          }
+                        },
+                        ),
                       const SizedBox(height: 20),
                       RichText(
                         text: TextSpan(
-                          text: 'Already have an account? ',
+                          text: AppLocalizations.of(context)!
+                              .already_have_account,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
                           ),
                           children: [
                             TextSpan(
-                              text: 'Login',
+                              text: AppLocalizations.of(context)!.login,
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.cyan,

@@ -14,6 +14,7 @@ class CustomLabCard extends StatelessWidget {
   final List<TestData> availableTests; // ✅ New field
   final VoidCallback onViewTests;
   final VoidCallback onBookNow;
+  final String imageUrl;
 
   const CustomLabCard({
     super.key,
@@ -27,6 +28,7 @@ class CustomLabCard extends StatelessWidget {
     required this.availableTests, // ✅ Required parameter
     required this.onViewTests,
     required this.onBookNow,
+    required this.imageUrl,
   });
 
   @override
@@ -110,7 +112,7 @@ class CustomLabCard extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => LabDetailsScreen(
                           labName: labName,
-                          labImageUrl: 'https://media.istockphoto.com/id/493302504/photo/testing-substances.jpg?s=612x612&w=0&k=20&c=zxRr8On95eALl__Ff06rasZZt6oOud8gGH0_8GFRTH8=',
+                          labImageUrl: imageUrl,
                           location: location,
                           rating: rating,
                           about: about,
