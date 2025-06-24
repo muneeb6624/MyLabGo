@@ -1,31 +1,54 @@
-// filepath: lib/widgets/custom_tests_card.dart
+// lib/widgets/custom_tests_card.dart
+
 import 'package:flutter/material.dart';
+import '../screens/test_details.dart';
 
 class CustomTestsCard extends StatelessWidget {
+  final String labId;
+  final String testId;
   final String testName;
   final double price;
-  final String duration;
+  final int duration;
   final String? description;
-  final VoidCallback onBook;
+  final bool canBeDoneFromHome;
+  final VoidCallback? onBook; // Optional callback for book button
 
   const CustomTestsCard({
-    Key? key,
+    super.key,
+    required this.labId,
+    required this.testId,
     required this.testName,
     required this.price,
     required this.duration,
-    this.description,
-    required this.onBook,
-  }) : super(key: key);
+    required this.description,
+    required this.canBeDoneFromHome,
+    this.onBook, // optional
+  });
+
+  void _navigateToDetails(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TestDetailsScreen(
+          testName: testName,
+          price: price,
+          duration: '$duration minutes',
+          description: description ?? '',
+          labId: labId,
+          testId: testId,
+          canBeDoneFromHome: canBeDoneFromHome,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -42,13 +65,7 @@ class CustomTestsCard extends StatelessWidget {
               children: [
                 const Icon(Icons.attach_money, color: Colors.grey),
                 const SizedBox(width: 5),
-                Text(
-                  '\$${price.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
-                ),
+                Text('Rs. ${price.toStringAsFixed(2)}'),
               ],
             ),
             const SizedBox(height: 8),
@@ -56,44 +73,53 @@ class CustomTestsCard extends StatelessWidget {
               children: [
                 const Icon(Icons.timer, color: Colors.grey),
                 const SizedBox(width: 5),
-                Text(
-                  duration,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
-                ),
+                Text('$duration minutes'),
               ],
             ),
             if (description != null && description!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.description, color: Colors.grey),
                   const SizedBox(width: 5),
-                  Expanded(
-                    child: Text(
-                      description!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Expanded(child: Text(description!)),
                 ],
               ),
             ],
             const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: onBook,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => _navigateToDetails(context),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  icon: const Icon(Icons.info_outline),
+                  label: const Text("Test Details", style: TextStyle(color: Colors.white), ),
                 ),
-                child: const Text('Book'),
-              ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: onBook ??
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TestDetailsScreen(
+                              testName: testName,
+                              price: price,
+                              duration: '$duration minutes',
+                              description: description ?? '',
+                              labId: labId,
+                              testId: testId,
+                              canBeDoneFromHome: canBeDoneFromHome,
+                            ),
+                          ),
+                        );
+                      },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  icon: const Icon(Icons.check),
+                  label: const Text("Book", style: TextStyle(color: Colors.white),),
+                ),
+              ],
             ),
           ],
         ),

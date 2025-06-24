@@ -1,13 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mylab_go/main.dart';
 import 'package:mylab_go/widgets/custom-form-field.dart';
 import 'package:mylab_go/widgets/custom_app_bar.dart';
-import '../widgets/custom_form_field.dart'; // Import CustomFormField
-import 'registration.dart'; // Import registration page
-import 'home.dart'; // Import home page
+import 'registration.dart';
+import 'home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../services/firebase_auth.dart'; // adjust path if different
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,26 +17,66 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // Form controllers
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  // Form validation
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Handle form submission
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login Successful!')),
+      final authService = FirebaseAuthService();
+      final user = await authService.loginWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
 
-      // Add a slight delay to allow the SnackBar to show before navigating
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+      if (user != null) {
+        // 🔍 Step 1: Try to find user in LabData
+        final labDoc = await FirebaseFirestore.instance
+            .collection('LabData')
+            .doc(user.uid)
+            .get();
+
+        if (labDoc.exists && labDoc.data()!['role'] == 'labadmin') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('🎉 Lab Admin Login Successful!')),
+          );
+          Future.delayed(const Duration(milliseconds: 500), () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          });
+          return;
+        }
+
+        // 🔍 Step 2: Check if it's a regular user
+        final userDoc = await FirebaseFirestore.instance
+            .collection('UserData')
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists && userDoc.data()!['role'] == 'user') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✅ Logged in as regular user')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+          // Redirect to another user screen if exists:
+          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const UserHomePage()));
+          return;
+        }
+
+        // ❌ If neither doc exists or no valid role
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('⚠️ Unknown user role or access denied.')),
         );
-      });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ Login failed. Check credentials.')),
+        );
+      }
     }
   }
 
@@ -99,8 +139,8 @@ class _LoginPageState extends State<LoginPage> {
                       buildCustomButton(
                         AppLocalizations.of(context)!.login,
                         Icons.check,
-                        Colors.cyan, // button color
-                        Colors.black, // icon color
+                        Colors.cyan,
+                        Colors.black,
                         _submitForm,
                       ),
                       const SizedBox(height: 10),
@@ -109,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                         Icons.camera_alt,
                         Colors.green,
                         Colors.black,
-                        () {},
+                        () => Navigator.pushNamed(context, '/face-login'),
                       ),
                       const SizedBox(height: 10),
                       buildCustomButton(
@@ -117,18 +157,16 @@ class _LoginPageState extends State<LoginPage> {
                         Icons.medical_services,
                         Colors.orange,
                         Colors.black,
-                        () {},
+                        () {}, // if this button is for lab-only login flow, we can reuse the role-based logic too
                       ),
                       const SizedBox(height: 20),
-
-                      /// Updated "Already have an account? Login" section
                       RichText(
                         text: TextSpan(
                           text:
                               AppLocalizations.of(context)!.do_not_have_account,
                           style: const TextStyle(
                             fontSize: 16,
-                            color: Colors.grey, // Normal text color
+                            color: Colors.grey,
                           ),
                           children: [
                             TextSpan(
@@ -143,8 +181,8 @@ class _LoginPageState extends State<LoginPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            const RegistrationPage()),
+                                      builder: (context) => const RegistrationPage(),
+                                    ),
                                   );
                                 },
                             ),
@@ -162,7 +200,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  /// Custom button widget
   Widget buildCustomButton(
     String text,
     IconData icon,
@@ -191,14 +228,13 @@ class _LoginPageState extends State<LoginPage> {
                 style: const TextStyle(fontSize: 18),
               ),
             ),
-            const SizedBox(width: 10), // spacing bet text and icon
+            const SizedBox(width: 10),
             Container(
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: Colors.white, // White background for icon
-                borderRadius:
-                    BorderRadius.circular(5), // slightly rounded edges
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
               ),
               child: Center(
                 child: Icon(icon, size: 33, color: iconColor),

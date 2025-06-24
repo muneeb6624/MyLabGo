@@ -8,23 +8,26 @@ class CustomFormField extends StatelessWidget {
   final String? Function(String?)? validator;
 
   const CustomFormField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     this.isPassword = false,
     this.icon,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (icon != null) ...[
-            Icon(icon, color: const Color.fromARGB(255, 20, 133, 167)),
-            const SizedBox(width: 10),
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0),
+              child: Icon(icon, color: const Color.fromARGB(255, 20, 133, 167)),
+            ),
           ],
           Expanded(
             child: TextFormField(
@@ -36,7 +39,9 @@ class CustomFormField extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16.0, vertical: 12.0),
+                  horizontal: 16.0,
+                  vertical: 12.0,
+                ),
               ),
               validator: validator,
             ),

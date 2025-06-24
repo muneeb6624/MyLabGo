@@ -15,9 +15,9 @@ class LanguageToggle extends StatelessWidget {
       children: [
         Text(
           isEnglish ? 'اردو' : 'English',
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Switch(
           value: isEnglish,
           onChanged: (value) {

@@ -4,8 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class GenderDropdown extends StatelessWidget {
   final TextEditingController genderController;
 
-  const GenderDropdown({required this.genderController, Key? key})
-      : super(key: key);
+  const GenderDropdown({required this.genderController, super.key});
 
   @override
   Widget build(BuildContext context) {
