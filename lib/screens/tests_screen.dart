@@ -1,16 +1,17 @@
 // lib/screens/tests_screen.dart
 import 'package:flutter/material.dart';
 import '../widgets/custom_tests_card.dart';
-//import '../data/test_data.dart'; 
-import '../screens/lab_details.dart'; 
+import '../models/test_data.dart';
 
 class TestsScreen extends StatelessWidget {
   final String labName;
+  final String labId;
   final List<TestData> tests;
 
   const TestsScreen({
     super.key,
     required this.labName,
+    required this.labId,
     required this.tests,
   });
 
@@ -54,13 +55,9 @@ class TestsScreen extends StatelessWidget {
                             price: test.price,
                             duration: test.duration,
                             description: test.description,
-                            onBook: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('${test.name} booked!'),
-                                ),
-                              );
-                            },
+                            canBeDoneFromHome: test.homeOrder,
+                            labId: labId,
+                            testId: test.testId,
                           ),
                         );
                       },

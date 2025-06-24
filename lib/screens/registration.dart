@@ -11,6 +11,13 @@ import 'package:url_launcher/url_launcher.dart';
 import './home.dart';
 import '../services/firebase_auth.dart';
 
+
+// Suggestion: Place this in a separate file like gradient_background.dart and import it, or add above your _RegistrationPageState class.
+
+import 'package:flutter/material.dart';
+
+
+
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
 

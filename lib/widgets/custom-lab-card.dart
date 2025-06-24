@@ -1,9 +1,9 @@
-// lib/widgets/custom_lab_card.dart
-
 import 'package:flutter/material.dart';
 import '../screens/lab_details.dart';
+import '../models/test_data.dart';
 
 class CustomLabCard extends StatelessWidget {
+  final String labId;
   final String labName;
   final String location;
   final double rating;
@@ -11,13 +11,16 @@ class CustomLabCard extends StatelessWidget {
   final String openingHours;
   final String contactNumber;
   final String email;
-  final List<TestData> availableTests; // ✅ New field
+  final List<TestData> availableTests;
   final VoidCallback onViewTests;
   final VoidCallback onBookNow;
   final String imageUrl;
+  final double latitude;
+  final double longitude;
 
   const CustomLabCard({
     super.key,
+    required this.labId,
     required this.labName,
     required this.location,
     required this.rating,
@@ -25,10 +28,12 @@ class CustomLabCard extends StatelessWidget {
     required this.openingHours,
     required this.contactNumber,
     required this.email,
-    required this.availableTests, // ✅ Required parameter
+    required this.availableTests,
     required this.onViewTests,
     required this.onBookNow,
     required this.imageUrl,
+    required this.latitude,
+    required this.longitude,
   });
 
   @override
@@ -102,7 +107,8 @@ class CustomLabCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                   onPressed: onViewTests,
-                  child: const Text('View Tests'),
+                  child: const Text('View Tests', style: TextStyle(color: Colors.white)),
+
                 ),
 
                 ElevatedButton(
@@ -111,6 +117,7 @@ class CustomLabCard extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => LabDetailsScreen(
+                          labId: labId,
                           labName: labName,
                           labImageUrl: imageUrl,
                           location: location,
@@ -119,7 +126,8 @@ class CustomLabCard extends StatelessWidget {
                           openingHours: openingHours,
                           contactNumber: contactNumber,
                           email: email,
-                          availableTests: availableTests, // ✅ Fix: pass it here
+                          latitude: latitude,
+                          longitude: longitude,
                         ),
                       ),
                     );
@@ -127,15 +135,6 @@ class CustomLabCard extends StatelessWidget {
                   child: const Text('Lab Details'),
                 ),
 
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.cyan,
-                    side: const BorderSide(color: Colors.cyan),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  onPressed: onBookNow,
-                  child: const Text('Book Now'),
-                ),
               ],
             ),
           ],
